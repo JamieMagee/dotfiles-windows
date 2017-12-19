@@ -1,9 +1,11 @@
-# Created by http://gitignore.io
+
+# Created by https://www.gitignore.io/api/windows
 
 ### Windows ###
-# Windows image file caches
+# Windows thumbnail cache files
 Thumbs.db
 ehthumbs.db
+ehthumbs_vista.db
 
 # Folder config file
 Desktop.ini
@@ -11,19 +13,13 @@ Desktop.ini
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
 
-### OSX ###
-.DS_Store
-.AppleDouble
-.LSOverride
-Icon
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
 
+# Windows shortcuts
+*.lnk
 
-# Thumbnails
-._*
-
-# Files that might appear on external disk
-.Spotlight-V100
-.Trashes
-
-# Shhh. The Extra file is a secret
-.extra
+# End of https://www.gitignore.io/api/windows

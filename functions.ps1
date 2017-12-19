@@ -21,7 +21,7 @@ function System-Update() {
     Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
     Update-Module
     Update-Help -Force
-    scoop update
+    cup all -y
     gem update --system
     gem update
     npm install npm -g
@@ -128,22 +128,6 @@ function Convert-ToDiskSize {
         }
         else { $bytes /= 1KB }
     }
-}
-
-# Start IIS Express Server with an optional path and port
-function Start-IISExpress {
-    [CmdletBinding()]
-    param (
-        [String] $path = (Get-Location).Path,
-        [Int32]  $port = 3000
-    )
-
-    if ((Test-Path "${env:ProgramFiles}\IIS Express\iisexpress.exe") -or (Test-Path "${env:ProgramFiles(x86)}\IIS Express\iisexpress.exe")) {
-        $iisExpress = Resolve-Path "${env:ProgramFiles}\IIS Express\iisexpress.exe" -ErrorAction SilentlyContinue
-        if ($iisExpress -eq $null) { $iisExpress = Get-Item "${env:ProgramFiles(x86)}\IIS Express\iisexpress.exe" }
-
-        & $iisExpress @("/path:${path}") /port:$port
-    } else { Write-Warning "Unable to find iisexpress.exe"}
 }
 
 # Extract a .zip file

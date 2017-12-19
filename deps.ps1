@@ -14,14 +14,6 @@ Write-Host "Updating Help..." -ForegroundColor "Yellow"
 Update-Help -Force
 
 
-### Package Providers
-Write-Host "Installing Package Providers..." -ForegroundColor "Yellow"
-Get-PackageProvider NuGet -Force | Out-Null
-# Chocolatey Provider is not ready yet. Use normal Chocolatey
-#Get-PackageProvider Chocolatey -Force
-#Set-PackageSource -Name chocolatey -Trusted
-
-
 ### Install PowerShell Modules
 Write-Host "Installing PowerShell Modules..." -ForegroundColor "Yellow"
 Install-Module Posh-Git -Scope CurrentUser -Force
@@ -31,96 +23,75 @@ Install-Module PSWindowsUpdate -Scope CurrentUser -Force
 ### Chocolatey
 Write-Host "Installing Desktop Utilities..." -ForegroundColor "Yellow"
 if ((which cinst) -eq $null) {
-    iex (new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1')
+    Invoke-Expression (new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1')
     Refresh-Environment
     choco feature enable -n=allowGlobalConfirmation
 }
 
 # system and cli
-choco install curl                --limit-output
-choco install nuget.commandline   --limit-output
-choco install webpi               --limit-output
-choco install git.install         --limit-output -params '"/GitAndUnixToolsOnPath /NoShellIntegration"'
-choco install nvm.portable        --limit-output
-choco install ruby                --limit-output
+choco install curl                  --limit-output
+choco install nano                  --limit-output
+choco install wget                  --limit-output
+choco install git.install           --limit-output -params '"/GitAndUnixToolsOnPath /NoShellIntegration"'
+choco install ruby                  --limit-output
 
-# browsers
-choco install GoogleChrome        --limit-output
-choco install GoogleChrome.Canary --limit-output
-choco install Firefox             --limit-output
-choco install Opera               --limit-output
+# utilities
+choco install 7zip                  --limit-output
+choco install notepadplusplus       --limit-output
+choco install mobaxterm             --limit-output
+choco install vlc                   --limit-output
+choco install spotify               --limit-output
+choco install f.lux                 --limit-output
+choco install screentogif           --limit-output
 
-# dev tools and frameworks
-choco install atom                --limit-output
-choco install Fiddler4            --limit-output
-choco install vim                 --limit-output
-choco install winmerge            --limit-output
+# java dev
+choco install javaruntime           --limit-output
+choco install jdk8                  --limit-output
+choco install maven                 --limit-output
+choco install gradle                --limit-output
+choco install intellijidea-ultimate --limit-output
+choco install kotlinc               --limit-output
+
+# node dev
+choco install nodejs                --limit-output
+choco install yarn                  --limit-output
+
+$info = "Which environment are you on?"
+$options = [System.Management.Automation.Host.ChoiceDescription[]] @("&Home", "&Work")
+[int]$defaultchoice = 1
+$opt = $host.UI.PromptForChoice("" , $Info , $Options,$defaultchoice)
+switch($opt)
+{
+    0 {
+        # home specific packages
+        choco install steam                        --limit-output
+        choco install libreoffice                  --limit-output
+     }
+    1 {
+        # work specific packages
+        choco install sql-server-management-studio --limit-output
+        choco install firefox                      --limit-output
+        choco install kubernetes-cli               --limit-output
+        choco install nvda                         --limit-output
+     }
+}
 
 Refresh-Environment
 
-nvm on
-$nodeLtsVersion = choco search nodejs-lts --limit-output | ConvertFrom-String -TemplateContent "{Name:package-name}\|{Version:1.11.1}" | Select -ExpandProperty "Version"
-nvm install $nodeLtsVersion
-nvm use $nodeLtsVersion
-Remove-Variable nodeLtsVersion
-
 gem pristine --all --env-shebang
-
-### Windows Features
-Write-Host "Installing Windows Features..." -ForegroundColor "Yellow"
-# IIS Base Configuration
-Enable-WindowsOptionalFeature -Online -All -FeatureName `
-    "IIS-BasicAuthentication", `
-    "IIS-DefaultDocument", `
-    "IIS-DirectoryBrowsing", `
-    "IIS-HttpCompressionDynamic", `
-    "IIS-HttpCompressionStatic", `
-    "IIS-HttpErrors", `
-    "IIS-HttpLogging", `
-    "IIS-ISAPIExtensions", `
-    "IIS-ISAPIFilter", `
-    "IIS-ManagementConsole", `
-    "IIS-RequestFiltering", `
-    "IIS-StaticContent", `
-    "IIS-WebSockets", `
-    "IIS-WindowsAuthentication" `
-    -NoRestart | Out-Null
-
-# ASP.NET Base Configuration
-Enable-WindowsOptionalFeature -Online -All -FeatureName `
-    "NetFx3", `
-    "NetFx4-AdvSrvs", `
-    "NetFx4Extended-ASPNET45", `
-    "IIS-NetFxExtensibility", `
-    "IIS-NetFxExtensibility45", `
-    "IIS-ASPNET", `
-    "IIS-ASPNET45" `
-    -NoRestart | Out-Null
-
-# Web Platform Installer for remaining Windows features
-webpicmd /Install /AcceptEula /Products:"UrlRewrite2"
-#webpicmd /Install /AcceptEula /Products:"NETFramework452"
-webpicmd /Install /AcceptEula /Products:"Python279"
 
 ### Node Packages
 Write-Host "Installing Node Packages..." -ForegroundColor "Yellow"
 if (which npm) {
     npm update npm
-    npm install -g gulp
-    npm install -g mocha
-    npm install -g node-inspector
+    npm install -g typescript
+    npm install -g grunt-cli
     npm install -g yo
 }
 
-### Janus for vim
-Write-Host "Installing Janus..." -ForegroundColor "Yellow"
-if ((which curl) -and (which vim) -and (which rake) -and (which bash)) {
-    curl.exe -L https://bit.ly/janus-bootstrap | bash
-}
 
-
-### Visual Studio Plugins
-if (which Install-VSExtension) {
+### Visual Studio Code Plugins
+if (which code) {
     ### Visual Studio 2015
     # VsVim
     # Install-VSExtension https://visualstudiogallery.msdn.microsoft.com/59ca71b3-a4a3-46ca-8fe1-0e90e3f79329/file/6390/57/VsVim.vsix
